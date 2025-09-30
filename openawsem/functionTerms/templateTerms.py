@@ -69,12 +69,9 @@ def tbm_q_term(oa, k_tbm_q, rnative_dat="rnative.dat", tbm_q_min_seq_sep=3, tbm_
 
 
 def fragment_memory_term(oa, k_fm=0.04184, frag_file_list_file="./frag.mem", npy_frag_table="./frag_table.npy",
-                    min_seq_sep=3, max_seq_sep=9, fm_well_width=0.1, UseSavedFragTable=True, caOnly=False, forceGroup=23):
+                    min_seq_sep=3, max_seq_sep=9, fm_well_width=0.1, UseSavedFragTable=True, caOnly=False, forceGroup=23,
+                    debug=False, frag_table_rmin = 0, frag_table_rmax = 5, frag_table_dr = 0.01):
     # 0.8368 = 0.01 * 4.184 # in kJ/mol, converted from default value in LAMMPS AWSEM
-    k_fm *= oa.k_awsem
-    frag_table_rmin = 0
-    frag_table_rmax = 5  # in nm
-    frag_table_dr = 0.01
     r_array = np.arange(frag_table_rmin, frag_table_rmax, frag_table_dr)
     number_of_atoms = oa.natoms
     r_table_size = int((frag_table_rmax - frag_table_rmin)/frag_table_dr)  # 500 here.
@@ -104,7 +101,7 @@ def fragment_memory_term(oa, k_fm=0.04184, frag_file_list_file="./frag.mem", npy
         frag_file_list = []
     else:
         print(f"Loading Fragment files(Gro files)")
-        frag_file_list = pd.read_csv(frag_file_list_file, skiprows=4, sep="\s+", names=["location", "target_start", "fragment_start", "frag_len", "weight"])
+        frag_file_list = pd.read_csv(frag_file_list_file, skiprows=4, sep="\s+", names=["location", "target_start", "fragment_start", "frag_len", "weight"], comment="#")
         interaction_list = set()
     for frag_index in range(len(frag_file_list)):
         location = frag_file_list["location"].iloc[frag_index]
@@ -167,7 +164,7 @@ def fragment_memory_term(oa, k_fm=0.04184, frag_file_list_file="./frag.mem", npy
             interaction_pair_to_bond_index[(i,j)] = index
         # np.save(frag_table_file, (frag_table, interaction_list, interaction_pair_to_bond_index))
         with open(frag_table_file, 'wb') as f:
-            pickle.dump((frag_table, interaction_list, interaction_pair_to_bond_index), f)
+            pickle.dump((frag_table, interaction_list, interaction_pair_to_bond_index), f)    
         print(f"All gro files information have been stored in the {frag_table_file}. \
             \nYou might want to set the 'UseSavedFragTable'=True to speed up the loading next time. \
             \nBut be sure to remove the .npy file if you modify the .mem file. otherwise it will keep using the old frag memeory.")
@@ -207,10 +204,16 @@ def fragment_memory_term(oa, k_fm=0.04184, frag_file_list_file="./frag.mem", npy
 
     fm.addPerBondParameter("index")
 
-    fm.addTabulatedFunction("frag_table",
-            Discrete2DFunction(len(interaction_list), r_table_size, frag_table.T.flatten()))
+    fm.addTabulatedFunction("frag_table", Discrete2DFunction(len(interaction_list), r_table_size, frag_table.T.flatten()))
     
-    if oa.periodic:
+    if debug:
+        x_array = np.arange(frag_table_rmin, frag_table_rmax, frag_table_dr)
+        #y_array = [f"{i}-{j}" for (i, j) in interaction_list]
+        y_array = [f"{oa.resi[i]}-{oa.resi[j]} ({[k for k, v in data_dic.items() if v == i][0][0]}-{[k for k, v in data_dic.items() if v == j][0][0]})" for (i, j) in interaction_list]
+        df = pd.DataFrame(-k_fm * frag_table, columns=x_array, index=y_array) #Energy in kJ
+        df.to_csv("frag_table_debug.csv")
+    
+    if oa.periodic_box:
         fm.setUsesPeriodicBoundaryConditions(True)
         print('\nfragment_memory_term is periodic')
 
@@ -499,7 +502,7 @@ def machine_learning_term(oa, k=1*kilocalorie_per_mole, dataFile="dist.npz", Use
         xnew = np.linspace(min(x), max(x), num=num_of_points, endpoint=True)
         for i in range(n):
             for j in range(i+1, n):
-                if np.alltrue(distspline[i][j] == 0):
+                if np.all(distspline[i][j] == 0):
                     continue
                 y = distspline[i][j]
                 f = interp1d(x, y)
@@ -580,7 +583,7 @@ def machine_learning_dihedral_omega_angle_term(oa, k=1*kilocalorie_per_mole, dat
     xnew = np.linspace(min(x), max(x), num=num_of_points, endpoint=True)
     for i in range(n):
         for j in range(i+1, n):
-            if np.alltrue(spline[i][j] == 0):
+            if np.all(spline[i][j] == 0):
                 continue
             y = spline[i][j]
             f = interp1d(x, y, kind='cubic')
@@ -660,7 +663,7 @@ def machine_learning_dihedral_theta_angle_term(oa, k=1*kilocalorie_per_mole, dat
     xnew = np.linspace(min(x), max(x), num=num_of_points, endpoint=True)
     for i in range(n):
         for j in range(i+1, n):
-            if np.alltrue(spline[i][j] == 0):
+            if np.all(spline[i][j] == 0):
                 continue
             y = spline[i][j]
             f = interp1d(x, y, kind='cubic')
@@ -739,7 +742,7 @@ def machine_learning_dihedral_phi_angle_term(oa, k=1*kilocalorie_per_mole, dataF
     xnew = np.linspace(min(x), max(x), num=num_of_points, endpoint=True)
     for i in range(n):
         for j in range(i+1, n):
-            if np.alltrue(spline[i][j] == 0):
+            if np.all(spline[i][j] == 0):
                 continue
             y = spline[i][j]
             f = interp1d(x, y, kind='cubic')

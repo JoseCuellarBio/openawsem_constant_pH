@@ -27,10 +27,10 @@ def read_reference_structure_for_q_calculation_3(oa, pdb_file, reference_chain_n
     for chain in model.get_chains():
         chain_start += count
         count = 0
-        if removeDNAchains and np.alltrue([a.get_resname().strip() in dnaResidues for a in chain.get_residues()]):
+        if removeDNAchains and np.all([a.get_resname().strip() in dnaResidues for a in chain.get_residues()]):
             print(f"chain {chain.id} is a DNA chain. will be ignored for Q evaluation")
             continue
-        elif removeDNAchains and np.alltrue([a.get_resname().strip() not in proteinResidues for a in chain.get_residues()]):
+        elif removeDNAchains and np.all([a.get_resname().strip() not in proteinResidues for a in chain.get_residues()]):
             print(f"chain {chain.id} is a ligand chain. will be ignored for Q evaluation")
             continue
         # print(chain)
@@ -161,7 +161,7 @@ def qbias_term(oa,reference_pdb_file, q0, reference_chain_name="ALL", k_qbias=10
     qbias = CustomCVForce(f"0.5*{k_qbias}*(q-{q0})^2")
     # qbias = CustomCVForce(f"0.5*{k_qbias}*(q-q0)^2")
     q = q_value(oa, reference_pdb_file, reference_chain_name, min_seq_sep=qbias_min_seq_sep, max_seq_sep=qbias_max_seq_sep, contact_threshold=qbias_contact_threshold)
-    if oa.periodic:
+    if oa.periodic_box:
         q.setUsesPeriodicBoundaryConditions(True)
     qbias.addCollectiveVariable("q", q)
     # qbias.addGlobalParameter("k_qbias", k_qbias)
