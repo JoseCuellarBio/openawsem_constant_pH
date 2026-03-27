@@ -154,6 +154,31 @@ Simulation of the amino terminal domain of Phage 434 repressor (1r69)
    ./mm_analyze.py 1r69 > energy.dat
    ```
 
+## CLI Tools
+
+### Fix Amino Acid Names (`awsem fix_aminoacids`)
+
+Converts AWSEM placeholder residue names (NGP, IGL, IPR) to standard amino acids using a sequence file.
+
+```bash
+awsem fix_aminoacids movie.pdb -f crystal_structure.fasta -o movie_standard.pdb
+```
+
+### All-Atom Reconstruction (`awsem reconstruct`)
+
+Reconstructs all-atom structures from AWSEM+3SPN2 coarse-grained models using SCWRL4 (protein) and DNAbackmap (DNA).
+
+```bash
+# Protein + DNA
+awsem reconstruct model.pdb -f protein.seq --scwrl /path/to/Scwrl4 --dnabackmap /path/to/DNAbackmap
+
+# Protein only (no DNAbackmap needed)
+awsem reconstruct protein.pdb -f protein.seq --scwrl /path/to/Scwrl4
+```
+
+**Requirements:** SCWRL4, DNAbackmap (DNA only)
+Run `awsem fix_aminoacids --help` or `awsem reconstruct --help` for full options.
+
 ## Notes:
 AWSEM is capable of modeling protein-DNA interactions when used together with open3SPN2, which can be found in a separate package at https://github.com/cabb99/open3spn2.
 
