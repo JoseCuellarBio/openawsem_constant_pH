@@ -70,7 +70,7 @@ echo 'export PATH=$PATH:'`pwd` >> ~/.bashrc
 * Download pdb_seqres.txt and put it in the cloned openawsem repository location
 
 ```bash
-wget ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt
+wget https://files.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt
 OPENAWSEM_LOCATION=$(python -c "import openawsem; print(openawsem.__location__)")
 cp pdb_seqres.txt $OPENAWSEM_LOCATION/data
 ```
@@ -176,16 +176,18 @@ awsem reconstruct model.pdb -f protein.seq --scwrl /path/to/Scwrl4 --dnabackmap 
 awsem reconstruct protein.pdb -f protein.seq --scwrl /path/to/Scwrl4
 ```
 
-**Requirements:** SCWRL4, DNAbackmap (DNA only)
+**Requirements** SCWRL4, DNAbackmap (DNA only)
 Run `awsem fix_aminoacids --help` or `awsem reconstruct --help` for full options.
 
-## Notes:
+## Notes
 AWSEM is capable of modeling protein-DNA interactions when used together with open3SPN2, which can be found in a separate package at https://github.com/cabb99/open3spn2.
 
 For small proteins, the LAMMPS version may be faster than OpenAWSEM, especially if a GPU is unavailable. Consider using http://awsem-md.org for such cases.
 
 A quick check of the stability of a protein in AWSEM can be done using the frustratometer server http://frustratometer.qb.fcen.uba.ar/
 
+## Acknowledgements
+This project is also supported by the Center for Theoretical Biological Physics (NSF Grants PHY-2019745 and PHY-1522550), with additional support from the D.R. Bullard Welch Chair at Rice University (Grant No. C-0016 to PGW).  We thank AMD (Advanced Micro Devices, Inc.) for the donation of high-performance computing hardware and HPC resources.  Carlos Bueno was supported by the MolSSI Software Fellowship. The skeleton of this project is based on the [Computational Molecular Science Python Cookiecutter](https://github.com/molssi/cookiecutter-cms) version 1.11.
 
 
 ## Data availability

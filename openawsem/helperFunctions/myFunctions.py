@@ -429,7 +429,7 @@ def downloadPdb(pdb_list, membrane_protein=False, location="original_pdbs/"):
                 os.system(f"wget https://opm-assets.storage.googleapis.com/pdb/{pdbFile}")
                 os.system(f"mv {pdbFile} {fileLocation}")
             else:
-                pdbl = PDBList()
+                pdbl = PDBList(server='http://files.wwpdb.org')
                 name = pdbl.retrieve_pdb_file(pdb, pdir='.', file_format='pdb')
                 os.system(f"mv {name} {fileLocation}")
             os.system("rm -r obsolete")
@@ -538,7 +538,7 @@ def getAllChains(pdbFile, removeDNAchains=True):
     dnaResidues = ['DA', 'DG', 'DC', 'DT', 'DI']
     for c in chains:
         logging.info(f'Processing chain: {c.id}')
-        if removeDNAchains and np.alltrue([a.name in dnaResidues for a in c.residues()]):
+        if removeDNAchains and np.all([a.name in dnaResidues for a in c.residues()]):
             logging.info(f"chain {c.id} is a DNA chain. it will be removed")
             continue
         if c.id in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789':
