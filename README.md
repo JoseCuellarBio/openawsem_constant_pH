@@ -177,7 +177,6 @@ awsem reconstruct protein.pdb -f protein.seq --scwrl /path/to/Scwrl4
 ```
 
 **Requirements** [SCWRL4](https://dunbrack.fccc.edu/lab/scwrl), [DNAbackmap](https://www.cafemol.org/download/) (DNA only)
-Run `awsem fix_aminoacids --help` or `awsem reconstruct --help` for full options.
 
 ## Notes
 AWSEM is capable of modeling protein-DNA interactions when used together with open3SPN2, which can be found in a separate package at https://github.com/cabb99/open3spn2.
