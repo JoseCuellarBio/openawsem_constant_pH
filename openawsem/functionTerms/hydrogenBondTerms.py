@@ -283,7 +283,10 @@ def beta_term_1(oa, k=0.5*kilocalories_per_mole, forceGroup=27, ssweight_file='s
 
     Alternatively, we can use the "lammps_awsemmd" version, which implements the potential from a particular LAMMPS AWSEM-MD commit,
     https://github.com/adavtyan/awsemmd/tree/cea754f1208fde6332d4d0f1cae3212bf7e8afbb, within a tolerance of 0.01 kcal/mol 
-    on all tested systems and computational Platforms. It should be noted that not all LAMMPS AWSEM-MD versions are identical.
+    on all tested systems and computational Platforms. The non-hardcoded parameters required for the LAMMPS energy calculation
+    may be found in tests/data/test_implementation_of_lammps_hbond_energies/lammps_setup_parameters.   
+    It should be noted that not all LAMMPS AWSEM-MD versions are identical.
+
 
     The OpenAWSEM paper:
     Lu, W.; Bueno, C.; Schafer, N. P.; Moller, J.; Jin, S.; Chen, X.; Chen, M.; Gu, X.; 
@@ -328,7 +331,9 @@ def beta_term_2(oa, k=0.5*kilocalories_per_mole, forceGroup=27, ssweight_file='s
 
     Alternatively, we can use the "lammps_awsemmd" version, which implements the potential from a particular LAMMPS AWSEM-MD commit,
     https://github.com/adavtyan/awsemmd/tree/cea754f1208fde6332d4d0f1cae3212bf7e8afbb, within a tolerance of 0.01 kcal/mol 
-    on all tested systems and computational Platforms. It should be noted that not all LAMMPS AWSEM-MD versions are identical.
+    on all tested systems and computational Platforms. The non-hardcoded parameters required for the LAMMPS energy calculation
+    may be found in tests/data/test_implementation_of_lammps_hbond_energies/lammps_setup_parameters.   
+    It should be noted that not all LAMMPS AWSEM-MD versions are identical.
 
     The OpenAWSEM paper:
     Lu, W.; Bueno, C.; Schafer, N. P.; Moller, J.; Jin, S.; Chen, X.; Chen, M.; Gu, X.; 
@@ -373,7 +378,9 @@ def beta_term_3(oa, k=0.5*kilocalories_per_mole, forceGroup=27, ssweight_file='s
 
     Alternatively, we can use the "lammps_awsemmd" version, which implements the potential from a particular LAMMPS AWSEM-MD commit,
     https://github.com/adavtyan/awsemmd/tree/cea754f1208fde6332d4d0f1cae3212bf7e8afbb, within a tolerance of 0.01 kcal/mol 
-    on all tested systems and computational Platforms. It should be noted that not all LAMMPS AWSEM-MD versions are identical.
+    on all tested systems and computational Platforms. The non-hardcoded parameters required for the LAMMPS energy calculation
+    may be found in tests/data/test_implementation_of_lammps_hbond_energies/lammps_setup_parameters.   
+    It should be noted that not all LAMMPS AWSEM-MD versions are identical.
 
     The OpenAWSEM paper:
     Lu, W.; Bueno, C.; Schafer, N. P.; Moller, J.; Jin, S.; Chen, X.; Chen, M.; Gu, X.; 
@@ -439,7 +446,9 @@ def pap_term_1(oa, k=0.5*kilocalories_per_mole, dis_i_to_i4=1.2, forceGroup=28, 
 
     Alternatively, we can use the "lammps_awsemmd" version, which implements the potential from a particular LAMMPS AWSEM-MD commit,
     https://github.com/adavtyan/awsemmd/tree/cea754f1208fde6332d4d0f1cae3212bf7e8afbb, within a tolerance of 0.01 kcal/mol 
-    on all tested systems and computational Platforms. It should be noted that not all LAMMPS AWSEM-MD versions are identical.
+    on all tested systems and computational Platforms. The non-hardcoded parameters required for the LAMMPS energy calculation
+    may be found in tests/data/test_implementation_of_lammps_hbond_energies/lammps_setup_parameters.   
+    It should be noted that not all LAMMPS AWSEM-MD versions are identical.
 
     However, the LAMMPS AWSEM-MD potential is implemented as a single term that should be accessed using pap_term_old.
 
@@ -489,7 +498,9 @@ def pap_term_2(oa, k=0.5*kilocalories_per_mole, dis_i_to_i4=1.2, forceGroup=28, 
 
     Alternatively, we can use the "lammps_awsemmd" version, which implements the potential from a particular LAMMPS AWSEM-MD commit,
     https://github.com/adavtyan/awsemmd/tree/cea754f1208fde6332d4d0f1cae3212bf7e8afbb, within a tolerance of 0.01 kcal/mol 
-    on all tested systems and computational Platforms. It should be noted that not all LAMMPS AWSEM-MD versions are identical.
+    on all tested systems and computational Platforms. The non-hardcoded parameters required for the LAMMPS energy calculation
+    may be found in tests/data/test_implementation_of_lammps_hbond_energies/lammps_setup_parameters.   
+    It should be noted that not all LAMMPS AWSEM-MD versions are identical.
 
     However, the LAMMPS AWSEM-MD potential is implemented as a single term that should be accessed using pap_term_old.
 
