@@ -176,7 +176,7 @@ awsem reconstruct model.pdb -f protein.seq --scwrl /path/to/Scwrl4 --dnabackmap 
 awsem reconstruct protein.pdb -f protein.seq --scwrl /path/to/Scwrl4
 ```
 
-**Requirements** SCWRL4, DNAbackmap (DNA only)
+**Requirements** [SCWRL4](https://dunbrack.fccc.edu/lab/scwrl), [DNAbackmap](https://www.cafemol.org/download/) (DNA only)
 Run `awsem fix_aminoacids --help` or `awsem reconstruct --help` for full options.
 
 ## Notes
