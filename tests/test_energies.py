@@ -10,7 +10,7 @@ import functools
 from pathlib import Path
 
 PROTEINS = ["1brs", "1mbn", "1ubq", "2lyz", "2lzm"]
-COLUMNS = ["Backbone", "Rama", "Contact", "Fragment", "Membrane", "ER", "TBM_Q", "Beta", "Pap", "Helical"]
+COLUMNS = ["Con", "Chain", "Chi", "Excluded", "Rama", "Contact", "Fragment", "Membrane", "ER", "TBM_Q", "Beta", "Pap", "Helical"]
 PLATFORMS = ['Reference', 'CPU', 'OpenCL', 'CUDA']
 data_path = Path('tests')/'data'
 
@@ -56,12 +56,12 @@ def time_many(func):
 def set_up_forces(oa, protein, force_name=None):
     #Define all forces using lambda to delay execution of the setup.
     all_forces = {
-        "Backbone": lambda: openawsem.functionTerms.basicTerms.con_term(oa),
+        "Con": lambda: openawsem.functionTerms.basicTerms.con_term(oa, forceGroup=4),        
         "Rama": lambda: openawsem.functionTerms.basicTerms.rama_term(oa),
         "Contact": lambda: openawsem.functionTerms.contactTerms.contact_term(oa),
-        "Chain": lambda: openawsem.functionTerms.basicTerms.chain_term(oa),
-        "Chi": lambda: openawsem.functionTerms.basicTerms.chi_term(oa),
-        "Excluded": lambda: openawsem.functionTerms.basicTerms.excl_term(oa),
+        "Chain": lambda: openawsem.functionTerms.basicTerms.chain_term(oa, forceGroup=5),
+        "Chi": lambda: openawsem.functionTerms.basicTerms.chi_term(oa, forceGroup=6),
+        "Excluded": lambda: openawsem.functionTerms.basicTerms.excl_term(oa, forceGroup=7),
         "RamaProline": lambda: openawsem.functionTerms.basicTerms.rama_proline_term(oa),
         "RamaSSWeight": lambda: openawsem.functionTerms.basicTerms.rama_ssweight_term(oa, k_rama_ssweight=2*8.368, ssweight_file=data_path/f'{protein}-ssweight'),
         "Beta1": lambda: openawsem.functionTerms.hydrogenBondTerms.beta_term_1(oa,ssweight_file=data_path/f'{protein}-ssweight'),
@@ -105,8 +105,9 @@ def analyze(protein, simulation_platform):
     integrator = openmm.LangevinIntegrator(300*openawsem.unit_definitions.kelvin, 1/openawsem.unit_definitions.picosecond, 2*openawsem.unit_definitions.femtoseconds)
     simulation = openmm.app.Simulation(oa.pdb.topology, oa.system, integrator, platform)
 
-    forceGroupTable = {"Backbone": 20, "Rama": 21, "Contact": 22, "Fragment": 23, "Membrane": 24, "ER": 25, "TBM_Q": 26, "Beta": 27, "Pap": 28, "Helical": 29,
-                       "Q": 1, "Rg": 2, "Qc": 3, "Helix_orientation": 18, "Pulling": 19}
+    forceGroupTable = {"Con": 4, "Chain":5, "Chi":6, "Excluded":7, 
+        "Rama": 21, "Contact": 22, "Fragment": 23, "Membrane": 24, "ER": 25, "TBM_Q": 26, "Beta": 27, "Pap": 28, "Helical": 29,
+        "Q": 1, "Rg": 2, "Qc": 3, "Helix_orientation": 18, "Pulling": 19}
 
     termEnergies = pd.DataFrame(columns=["Step"] + COLUMNS)
     for step in range(len(pdb_trajectory)):
@@ -133,7 +134,7 @@ def benchmark(protein, simulation_platform, timing_function = time_once, n_steps
     pdb_trajectory = md.load(f'{protein}-movie.dcd', top=f"{protein}-openmmawsem.pdb")
 
     benchmark_data=[]
-    for force_name in ['Backbone', 'Rama', 'Contact', 'Chain', 'Chi', 'Excluded', 'RamaProline', 'RamaSSWeight', 'Beta1', 'Beta2', 'Beta3', 'Helical', 'Pap1', 'Pap2', 'FragmentMemory', 'DebyeHuckel','All']:
+    for force_name in ['Con', 'Rama', 'Contact', 'Chain', 'Chi', 'Excluded', 'RamaProline', 'RamaSSWeight', 'Beta1', 'Beta2', 'Beta3', 'Helical', 'Pap1', 'Pap2', 'FragmentMemory', 'DebyeHuckel','All']:
         # Setup forces
         oa = openawsem.OpenMMAWSEMSystem(f"{protein}-openmmawsem.pdb",
                                          chains=chain,
