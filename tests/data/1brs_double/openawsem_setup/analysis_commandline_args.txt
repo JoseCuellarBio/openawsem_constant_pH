@@ -1,9 +1,0 @@
-mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat
-precision_mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat
-precision_mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat
-precision_mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat
-precision_mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat
-precision_mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat
-precision_mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat
-precision_mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat
-precision_mm_analyze.py 1brs -f forces_setup.py -t ../dump.lammpstrj -o openawsem_setup/info.dat

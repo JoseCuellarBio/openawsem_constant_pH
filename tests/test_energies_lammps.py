@@ -90,7 +90,7 @@ def analyze(protein, simulation_platform):
     #     lammps only logs CA, CB, and O, but we have to add positions for the virtual sites
     coordses = []
     coords = None
-    with open(data_path/f'{protein}_double/dump.lammpstrj','r') as f: # high-precision coordinates
+    with open(data_path/f'{protein}_lammps/dump.lammpstrj','r') as f: # high-precision coordinates
         for counter, line in enumerate(f):
             if counter % (n_atoms+9) < 9: # header lines
                 if coords:
@@ -147,7 +147,7 @@ def analyze(protein, simulation_platform):
     chain = openawsem.helperFunctions.myFunctions.getAllChains(data_path/f"{protein}-crystal_structure.pdb")
     seq = openawsem.helperFunctions.myFunctions.read_fasta(data_path/f"{protein}-crystal_structure.fasta")
     pdb_trajectory = md.load(data_path/f'{protein}-movie.dcd', top=data_path/f"{protein}-openmmawsem.pdb")
-    oa = openawsem.OpenMMAWSEMSystem(data_path/f"1brs_double/openawsem_setup/{protein}-openmmawsem.pdb",
+    oa = openawsem.OpenMMAWSEMSystem(data_path/f"{protein}-openmmawsem.pdb",
                                      chains=chain,
                                      k_awsem=1.0,
                                      xml_filename=openawsem.xml,
@@ -209,7 +209,7 @@ class TestEnergyTerms:
             calculated_energies = analyzed_data(protein, platform)
             # lammps uses kcal/mol, but our openawsem energies will be calculated in kJ/mol,
             # so we convert here
-            saved_energies = 4.184*pd.read_csv(data_path/f'{protein}_double/{protein}-double_energies.csv')
+            saved_energies = 4.184*pd.read_csv(data_path/f'{protein}_lammps/{protein}-lammps_energies.csv')
 
             assert column in calculated_energies.columns, f"Column {column} not found in calculated energies for protein {protein} on platform {platform}"
             assert column in saved_energies.columns, f"Column {column} not found in saved energies for protein {protein} on platform {platform}"
