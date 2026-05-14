@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+'''
+The purpose of this test is to add more sequences and structures for the 
+hydrogen bond potential, possibly catching some disagreements that would
+not be caught by the other tests.
+'''
+
 import pandas as pd
 import mdtraj as md
 import numpy as np
