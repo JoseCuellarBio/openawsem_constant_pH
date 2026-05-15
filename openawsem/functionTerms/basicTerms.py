@@ -131,10 +131,10 @@ def excl_term(oa, k_excl=8368, excludeCB=False, forceGroup=20):
     # we can't use openmm's          ^^^^^^^^^^^^^^^^^^^^^^^^ automatic bonded exclusions because they have to be the same for all Forces,
     # so we program the exclusion for adjacent (bonded) particles into the potential
     definitions = ";rI=0.35\
-        ;rII=max(r_preferred2,r_preferred1)\
+        ;rII=r_preferred2\
             ;close_in_sequence=same_chain*(1-at_least_5)\
                 ;at_least_5=step(abs(resId2-resId1)-5)\
-                    ;same_chain=delta(chainId2-chainId1)" 
+                    ;same_chain=delta(chainId2-chainId1)" # because our interactionGroups only combine pairs with the same r_preferred, r_preferred1==r_preferred2 always
     energy_string = f'{base_energy_string}{definitions}'
     excl = CustomNonbondedForce(energy_string)
     # set parameters and add particles
