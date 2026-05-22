@@ -1,5 +1,7 @@
 import argparse
 from pathlib import Path
+from os import PathLike
+import warnings
 
 def process_trajectory(movieFile, fastaFile, outputFile, startFrame=0, endFrame=None, stride=1):
     seq_dic = get_seq_dic(fasta=fastaFile)
@@ -41,24 +43,42 @@ def main(args=None):
 
     process_trajectory(args.PDBFile, args.fasta, args.output, args.start, args.end, args.stride)
 
-def get_seq_dic(fasta="../crystal_structure.fasta"):
+def get_seq_dic(fasta: str | PathLike = "../crystal_structure.fasta") -> dict[str, str]:
     seq_dic = {}
     chain = None
+    seq = ""
     with open(fasta) as f:
         for line in f:
-            if line[0] == ">":
-                assert line[:19] == ">CRYSTAL_STRUCTURE:"
-                if chain is not None:
-                    seq_dic[chain] = seq
-                chain = line[19]
-                seq = ""
+            if line.startswith(">"):
+                if line[:19] == ">CRYSTAL_STRUCTURE:":
+                    if chain is not None:
+                        seq_dic[chain] = seq
+                    chain = line[19]
+                    seq = ""
             else:
                 seq += line.replace("\n", "")
-        seq_dic[chain] = seq
+
+        if chain is not None:
+            seq_dic[chain] = seq
+        elif seq:
+            # Deprecated behavior: Older AWSEM versions stored sequences without chain 
+            # identifiers. While AWSEM can read chains directly from the PDB file, using 
+            # FASTA files with >CRYSTAL_STRUCTURE:X headers is recommended for compatibility
+            # with other tools. This fallback allows converting older simulations.
+            warnings.warn(
+                "No '>CRYSTAL_STRUCTURE:' chain headers found in FASTA file.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+            seq_dic['Unknown'] = seq
     return seq_dic
 
 
-def convert_openMM_to_standard_pdb(fileName="last_frame.pdb", seq_dic=None, back=True):
+def convert_openMM_to_standard_pdb(
+    fileName: str | PathLike = "last_frame.pdb",
+    seq_dic: dict[str, str] | None = None,
+    back: bool = True
+) -> None:
     code = {"GLY": "G", "ALA": "A", "LEU": "L", "ILE": "I",
             "ARG": "R", "LYS": "K", "MET": "M", "CYS": "C",
             "TYR": "Y", "THR": "T", "PRO": "P", "SER": "S",
@@ -67,6 +87,9 @@ def convert_openMM_to_standard_pdb(fileName="last_frame.pdb", seq_dic=None, back
     inv_code_map = {v: k for k, v in code.items()}
     if seq_dic is None:
         seq_dic = get_seq_dic()
+    
+    # Deprecated "Unknown" chain mode: map residues sequentially into concatenated sequence
+    residue_index = {}  # (chain, resnum) -> index in 'Unknown' sequence
     
     file_path = Path(fileName)
     backup_path = file_path.with_suffix(file_path.suffix + '.bak') if back and file_path.with_suffix('.bak').exists() else None
@@ -89,7 +112,14 @@ def convert_openMM_to_standard_pdb(fileName="last_frame.pdb", seq_dic=None, back
 
             tmp = list(line)
             if "".join(tmp[17:20]) in ["IGL", "NGP", "IPR"]:
-                res = seq_dic[chain][i - 1]
+                if chain in seq_dic:
+                    res = seq_dic[chain][i - 1]
+                else:
+                    # Deprecated: assign sequential index for Unknown chain
+                    key = (chain, i)
+                    if key not in residue_index:
+                        residue_index[key] = len(residue_index)
+                    res = seq_dic['Unknown'][residue_index[key]]
                 tmp[17:20] = inv_code_map[res]
                 if line[:6] == "HETATM":
                     tmp[:6] = "ATOM  "
