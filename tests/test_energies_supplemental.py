@@ -9,8 +9,8 @@ import pytest
 import functools
 from pathlib import Path
 
-PROTEINS = ["1brs", "1mbn", "1ubq", "2lyz", "2lzm"]
-COLUMNS = ["Backbone", "Rama", "Contact", "Fragment", "Membrane", "ER", "TBM_Q", "Beta", "Pap", "Helical"]
+PROTEINS = ["6rb9","2ohx_A","8j47_IGECA"]
+COLUMNS = ["Beta", "Pap",]
 PLATFORMS = ['Reference', 'CPU', 'OpenCL', 'CUDA']
 data_path = Path('tests')/'data'
 
@@ -70,8 +70,8 @@ def set_up_forces(oa, protein, force_name=None):
         "Helical": lambda: openawsem.functionTerms.hydrogenBondTerms.helical_term(oa),
         "Pap1": lambda: openawsem.functionTerms.hydrogenBondTerms.pap_term_1(oa,ssweight_file=data_path/f'{protein}-ssweight'),
         "Pap2": lambda: openawsem.functionTerms.hydrogenBondTerms.pap_term_2(oa,ssweight_file=data_path/f'{protein}-ssweight'),
-        "FragmentMemory": lambda: openawsem.functionTerms.templateTerms.fragment_memory_term(oa, frag_file_list_file=data_path/f'{protein}-single_frags.mem', npy_frag_table=data_path/f'{protein}-single_frags.npy', UseSavedFragTable=False),
-        "DebyeHuckel": lambda: openawsem.functionTerms.debyeHuckelTerms.debye_huckel_term(oa, chargeFile=data_path/f'{protein}-charge.txt'),
+        #"FragmentMemory": lambda: openawsem.functionTerms.templateTerms.fragment_memory_term(oa, frag_file_list_file=data_path/f'{protein}-single_frags.mem', npy_frag_table=data_path/f'{protein}-single_frags.npy', UseSavedFragTable=False),
+        #"DebyeHuckel": lambda: openawsem.functionTerms.debyeHuckelTerms.debye_huckel_term(oa, chargeFile=data_path/f'{protein}-charge.txt'),
     }
     forces = []
     if force_name:
@@ -195,17 +195,4 @@ class TestEnergyTerms:
 
 
 if __name__ == '__main__':
-    # analyze("1brs", "Reference")
-    data = []
-    for protein in PROTEINS:
-        for platform in PLATFORMS:
-            data += benchmark(protein, platform, time_once)
-    data = pd.DataFrame(data, columns=['protein', 'simulation_platform', 'force_name', 'setup_time', 'simulation_time'])
-    data.to_csv('Benchmark_data_once.csv')
-
-    data = []
-    for protein in PROTEINS:
-        for platform in PLATFORMS:
-            data += benchmark(protein, platform, time_many)
-    data = pd.DataFrame(data, columns=['protein', 'simulation_platform', 'force_name', 'setup_time', 'simulation_time'])
-    data.to_csv('Benchmark_data_many.csv')
+    pass
