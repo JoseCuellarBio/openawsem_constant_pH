@@ -320,6 +320,30 @@ class Protein(object):
         with open(seq_file, 'w+') as ps:
             ps.write(''.join(protein_sequence_one))
 
+    def corrected_resid(self, gap=100):
+        """Return per-atom residue IDs with a guaranteed gap between chains.
+
+        Inserts `gap` unused indices between consecutive chains so that
+        cross-chain residue pairs always satisfy abs(resId1-resId2) > gap.
+        
+        Args:
+            oa: OpenAWSEM system object.
+            gap (int): Number of indices to leave between chains (must exceed
+                the largest sequence-separation threshold used in energy
+                expressions, i.e. gap > 5 for excl_term).
+
+        Returns:
+            np.ndarray[int]: Adjusted residue ID per atom (length oa.natoms).
+                Non-protein atoms (oa.resi == -1) are returned as -1.
+
+        Raises:
+            ValueError: If residues within any chain are not contiguous.
+        """
+        resi = np.array(self.resi)
+        for start in self.chain_starts[1:][::-1]:
+            resi += gap * (resi >= start)
+        return resi
+
 def addNonBondedExclusions(oa, force):
     cb_fixed = [x if x > 0 else y for x, y in zip(oa.cb, oa.ca)]
     none_cb_fixed = [i for i in range(oa.natoms) if i not in cb_fixed]
@@ -935,7 +959,7 @@ class OpenMMAWSEMSystem:
         for i, (force) in enumerate(forces):
             self.addForce(force)
 
-    def corrected_resid(self, gap=10):
+    def corrected_resid(self, gap=100):
         """Return per-atom residue IDs with a guaranteed gap between chains.
 
         Inserts `gap` unused indices between consecutive chains so that
