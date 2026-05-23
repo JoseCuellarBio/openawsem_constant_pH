@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+
+'''
+The purpose of this test is to check that pap_term_old
+is equivalent to pap_term_1 + pap_term_2 called with
+pap_nu_on=False.
+
+The latter choice, which uses a CustomHbondForce,
+may be more efficient than the former choice, which
+uses a CustomCompoundBondForce with a large number
+of particles.
+
+The pap_term_old exists because it is easier to compare
+the structure of the code to the lammps code. You can 
+learn more about it by looking at
+test_implementation_of_lammps_hbond_energies.py.
+'''
+
 import pandas as pd
 import mdtraj as md
 import numpy as np

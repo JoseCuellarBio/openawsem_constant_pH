@@ -643,9 +643,6 @@ def ensure_atom_order(input_pdb_filename, quiet=1):
                 out.write(a[1])
     os.system(f"mv tmp.pdb {input_pdb_filename}")
 
-
-
-
 def get_chain_starts_and_ends(all_res):
     chain_starts = []
     chain_ends = []
@@ -937,6 +934,31 @@ class OpenMMAWSEMSystem:
     def addForcesWithDefaultForceGroup(self, forces):
         for i, (force) in enumerate(forces):
             self.addForce(force)
+
+    def corrected_resid(self, gap=10):
+        """Return per-atom residue IDs with a guaranteed gap between chains.
+
+        Inserts `gap` unused indices between consecutive chains so that
+        cross-chain residue pairs always satisfy abs(resId1-resId2) > gap.
+        
+        Args:
+            oa: OpenAWSEM system object.
+            gap (int): Number of indices to leave between chains (must exceed
+                the largest sequence-separation threshold used in energy
+                expressions, i.e. gap > 5 for excl_term).
+
+        Returns:
+            np.ndarray[int]: Adjusted residue ID per atom (length oa.natoms).
+                Non-protein atoms (oa.resi == -1) are returned as -1.
+
+        Raises:
+            ValueError: If residues within any chain are not contiguous.
+        """
+        resi = np.array(self.resi)
+        for start in self.chain_starts[1:][::-1]:
+            resi += gap * (resi >= start)
+        return resi
+
 
 
 
