@@ -105,7 +105,7 @@ def chi_term(oa, k_chi=251.04, chi0=-0.71, forceGroup=20):
     chi.setForceGroup(forceGroup)
     return chi
 
-def excl_term_finley(oa, k_excl=8368, excludeCB=False, forceGroup=20):
+def excl_term(oa, k_excl=8368, excludeCB=False, forceGroup=20):
     # add excluded volume
     # 8368 = 20 * 4.184 * 100 kJ/nm^2, converted from default value in LAMMPS AWSEM
     #
@@ -169,7 +169,7 @@ def excl_term_finley(oa, k_excl=8368, excludeCB=False, forceGroup=20):
     excl.setForceGroup(forceGroup)
     return excl
 
-def excl_term(oa, k_excl=8368, excludeCB=False, forceGroup=20):
+def excl_term_carlos(oa, k_excl=8368, excludeCB=False, forceGroup=20):
     """Excluded volume term preventing atomic clashes between CA, CB, and O atoms.
 
     Applies a soft repulsive harmonic wall. Cutoff is 0.35 nm for residues close in
