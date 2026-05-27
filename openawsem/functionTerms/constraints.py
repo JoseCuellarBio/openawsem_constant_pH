@@ -27,7 +27,7 @@ def measure_distance(oa, res1, res2, forceGroup=4): #Assign to forceGroup 4 as m
     constraint.setForceGroup(forceGroup)
     return constraint
 
-'''
+
 def group_constraint_by_distance(oa, d0=0*angstrom, group1=[oa.ca[0], oa.ca[1]], group2=[oa.ca[2], oa.ca[3]], forceGroup=3, k=1*kilocalorie_per_mole):
     # CustomCentroidBondForce only work with CUDA not OpenCL.
     # only CA, CB, O has mass. so the group have to include those.
@@ -41,9 +41,9 @@ def group_constraint_by_distance(oa, d0=0*angstrom, group1=[oa.ca[0], oa.ca[1]],
     constraint.addBond([0, 1])
     constraint.setForceGroup(forceGroup)
     return constraint
-'''
 
-def group_constraint_by_distance(oa, d0=0*angstrom, group1=None, group2=None, forceGroup=3, k=1*kilocalorie_per_mole):
+
+def group_constraint_by_distance_protein(oa, d0=0*angstrom, group1=None, group2=None, forceGroup=3, k=1*kilocalorie_per_mole):
     # CustomCentroidBondForce only work with CUDA not OpenCL.
     # only CA, CB, O has mass. so the group have to include those. Default assignment should be away from forceGroup 3.
     if group1 is None or group2 is None:
@@ -100,7 +100,6 @@ def measure_distance_group(oa, group1=None, group2=None, forceGroup=4): #Assign 
     constraint.setForceGroup(forceGroup)
     return constraint
 
-from simtk.unit import dalton
 def group_constraint_by_position(oa, k=1*kilocalorie_per_mole, x0=10*angstrom, y0=10*angstrom, z0=10*angstrom, appliedToResidues=None, forceGroup=3):
     # x0, y0, z0 is in unit of nm.
     x0 = x0.value_in_unit(nanometer)
