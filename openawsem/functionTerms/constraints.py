@@ -30,6 +30,9 @@ def measure_distance(oa, res1, res2, forceGroup=4): #Assign to forceGroup 4 as m
 
 def group_constraint_by_distance(oa, d0=0*angstrom, group1=[oa.ca[0], oa.ca[1]], group2=[oa.ca[2], oa.ca[3]], forceGroup=3, k=1*kilocalorie_per_mole):
     # CustomCentroidBondForce only work with CUDA not OpenCL.
+    #
+    # note added 11 Jun 2025: CustomCentroidBondForce worked for me on OpenCL on my workstation, ws1808
+    #
     # only CA, CB, O has mass. so the group have to include those.
     k = k.value_in_unit(kilojoule_per_mole)   # convert to kilojoule_per_mole, openMM default uses kilojoule_per_mole as energy.
     k_constraint = k * oa.k_awsem
@@ -100,7 +103,7 @@ def measure_distance_group(oa, group1=None, group2=None, forceGroup=4): #Assign 
     constraint.setForceGroup(forceGroup)
     return constraint
 
-def group_constraint_by_position(oa, k=1*kilocalorie_per_mole, x0=10*angstrom, y0=10*angstrom, z0=10*angstrom, appliedToResidues=None, forceGroup=3):
+def group_constraint_by_position(oa, k=1*kilocalorie_per_mole, x0=10*nanometer, y0=10*nanometer, z0=10*nanometer, appliedToResidues=None, forceGroup=3):
     # x0, y0, z0 is in unit of nm.
     x0 = x0.value_in_unit(nanometer)
     y0 = y0.value_in_unit(nanometer)
@@ -143,6 +146,33 @@ def group_constraint_by_position(oa, k=1*kilocalorie_per_mole, x0=10*angstrom, y
     harmonic.addCollectiveVariable("sum_z", sum_of_z_coord)
     harmonic.setForceGroup(forceGroup)
     return harmonic
+
+def group_constraint_by_position_centroid(oa,k,restraint_coords,restraint_group,forceGroup=30):
+    """
+    k: kcal/mol, force constant for the restraint, where the potential is (1/2)*k*x^2
+    restraint_coords: nm, a list of coordinates [x,y,z] to which the group is restrained
+    restraint_group: a list of 0-indexed residue indices of the group to be restrained 
+    forceGroup: i think default value of 30 is not used by any other openawsem term, but am not sure
+    """
+    # initialize Force
+    restraint_force = CustomCentroidBondForce(1,f"0.5*{k}*sqrt(((x1-{restraint_coords[0]})^2)+((y1-{restraint_coords[1]})^2)+((z1-{restraint_coords[2]})^2))")
+    # get particle indices
+    particles = []
+    for counter,ca_i in enumerate(oa.ca):
+        if ca_i != -1 and counter in restraint_group:
+            particles.append(ca_i)
+    for counter,cb_i in enumerate(oa.cb):
+        if cb_i != -1 and counter in restraint_group:
+            particles.append(cb_i)
+    for counter,o_i in enumerate(oa.o):
+        if o_i != -1 and counter in restraint_group:
+            particles.append(o_i)
+    # add particles to Force
+    restraint_force.addGroup(particles)
+    #
+    restraint_force.setForceGroup(forceGroup)
+    return restraint_force
+
 
 def measure_from_position(oa, x0=10*angstrom, y0=10*angstrom, z0=10*angstrom, appliedToResidues=None, forceGroup=3):
     # x0, y0, z0 is in unit of nm.
