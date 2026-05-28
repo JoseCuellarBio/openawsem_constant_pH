@@ -124,7 +124,7 @@ def group_constraint_by_position(oa, k=1*kilocalorie_per_mole, x0=10*nanometer, 
     print(f"mass can be retrieved as ", oa.system.getParticleMass(oa.ca[0]))
     total_mass = 0.0
     for i in range(oa.natoms):
-        if appliedToResidues == None:
+        if appliedToResidues is None:
             mass = oa.system.getParticleMass(i).value_in_unit(dalton)
             sum_of_x_coord.addParticle(i, [mass])
             sum_of_y_coord.addParticle(i, [mass])
