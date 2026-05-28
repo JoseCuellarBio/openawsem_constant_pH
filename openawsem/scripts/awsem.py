@@ -15,6 +15,7 @@ def main():
     subparsers.add_parser('pdb2gro', help='Converts a pdb file to a gro file', add_help=False,)
     subparsers.add_parser('align_fragments', help='Aligns fragments to a fasta file', add_help=False)
     subparsers.add_parser('fix_aminoacids', help='Fixes the aminoacids from a movie or native', add_help=False)
+    subparsers.add_parser('reconstruct', help='Reconstruct all-atom structure from CG model', add_help=False)
 
 
     args, remaining_args = parser.parse_known_args()
@@ -45,6 +46,9 @@ def main():
     elif args.subcommand == 'align_fragments':
         from openawsem.helperFunctions import align_fragments
         align_fragments.main(remaining_args)
+    elif args.subcommand == 'reconstruct':
+        from openawsem.helperFunctions import reconstruct
+        reconstruct.main(remaining_args)
     else:
         parser.print_help()
 

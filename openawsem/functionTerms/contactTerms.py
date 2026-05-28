@@ -240,9 +240,9 @@ def contact_term(oa, k_contact=4.184, k_burial = None, z_dependent=False, z_m=1.
             f"0.5*tanh({eta_switching}*((z-{membrane_center})+{z_m}))+0.5*tanh({eta_switching}*({z_m}-(z-{membrane_center})))",
             CustomGBForce.SingleParticle)
         base_energy_string = f"(1-alphaMembrane1*alphaMembrane2)*{base_contact_energy(0)}\
-                              +(alphaMembrane1*alphaMembrane2)*{base_contact_energy(1)};"
+                               +(alphaMembrane1*alphaMembrane2)*{base_contact_energy(1)}"
     else:
-        base_energy_string = f"{base_contact_energy(inMembrane)};"
+        base_energy_string = f"{base_contact_energy(inMembrane)}"
 
     # Modify the base energy string to include weights for direct, water, and protein interactions
     if direct_mask_ij is not None:
@@ -259,13 +259,14 @@ def contact_term(oa, k_contact=4.184, k_burial = None, z_dependent=False, z_m=1.
         base_energy_string = base_energy_string.replace("WATER_MASK", "")
     
     #Add other coefficients and definitions to the energy string
-    coefficients = f"-isCb1*isCb2*{k_contact}*"
+    coefficients = f"-isCb1*isCb2*{k_contact}"
     definitions = f"sigma_protein=1-sigma_water;\
                     theta=0.25*(1+tanh({eta}*(r-{r_min})))*(1+tanh({eta}*({r_max}-r)));\
                     thetaII=0.25*(1+tanh({eta}*(r-{r_minII})))*(1+tanh({eta}*({r_maxII}-r)));\
                     sigma_water=0.25*(1-tanh({eta_sigma}*(rho1-{rho_0})))*(1-tanh({eta_sigma}*(rho2-{rho_0})))"
     
-    energy_string = f"{coefficients}{base_energy_string}{definitions}"
+    energy_string = f"""({coefficients})*({base_energy_string});\
+                        {definitions}"""
     #print("Contact energy string: ", energy_string)
     
     # use energy expression to the ParticlePair interaction
