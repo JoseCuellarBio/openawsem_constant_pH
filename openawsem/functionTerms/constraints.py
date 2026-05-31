@@ -28,7 +28,8 @@ def measure_distance(oa, res1, res2, forceGroup=4): #Assign to forceGroup 4 as m
     return constraint
 
 
-def group_constraint_by_distance(oa, d0=0*angstrom, group1=[oa.ca[0], oa.ca[1]], group2=[oa.ca[2], oa.ca[3]], forceGroup=3, k=1*kilocalorie_per_mole):
+def group_constraint_by_distance(oa, d0=0*angstrom, group1=None, group2=None, forceGroup=3, k=1*kilocalorie_per_mole):
+    # example: group1 = [oa.ca[0], oa.ca[1]], group2 = [oa.ca[2], oa.ca[3]]
     # CustomCentroidBondForce only work with CUDA not OpenCL.
     #
     # note added 11 Jun 2025: CustomCentroidBondForce worked for me on OpenCL on my workstation, ws1808
