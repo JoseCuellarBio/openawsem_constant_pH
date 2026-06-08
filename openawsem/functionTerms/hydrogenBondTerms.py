@@ -488,7 +488,7 @@ def pap_term_1(oa, k=0.5*kilocalories_per_mole, dis_i_to_i4=1.2, forceGroup=28, 
     else:
         raise ValueError(f"version must be 'efficiency_optimized' or 'lammps_awsemmd', but was {version}")
 
-def pap_term_2(oa, k=0.5*kilocalories_per_mole, dis_i_to_i4=1.2, forceGroup=28, ssweight_file="ssweight", ssweightFileName="ssweight",
+def pap_term_2(oa, k=0.5*kilocalories_per_mole, dis_i_to_i4=1.2, forceGroup=28, ssweight_file="ssweight",
                    version='efficiency_optimized', pap_nu_on=True, **kwargs):
     """
     Main API for the parallel cooperative liquid crystal beta-sheet (P_AP) hydrogen bonding term. 
