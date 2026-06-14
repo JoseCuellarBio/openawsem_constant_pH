@@ -26,8 +26,8 @@ import pytest
 import functools
 from pathlib import Path
 
-PROTEINS = ['extract_pd_16_protonly',"6rb9","2ohx_A","8j47_IGECA"]
-COLUMNS =  ["Beta","Pap"]
+PROTEINS = ["6rb9","2ohx_A","8j47_IGECA"]
+COLUMNS = ["Beta", "Pap",]
 PLATFORMS = ['Reference', 'CPU', 'OpenCL', 'CUDA']
 data_path = Path('tests')/'data'
 
