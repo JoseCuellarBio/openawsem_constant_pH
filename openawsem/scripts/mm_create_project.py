@@ -338,8 +338,11 @@ class AWSEMSimulationProject:
         """
         logging.info(f"Copying scripts to {destination_folder}")
         mm_run_path = __location__ /"scripts"/ "mm_run.py"
+        mm_run_path = __location__ /"scripts"/ "mm_run_pH.py"
         mm_analysis_path = __location__ /"scripts"/ "mm_analyze.py"
         forces_setup_path = __location__ /"scripts"/ "forces_setup.py"
+        forces_setup_path = __location__ /"scripts"/ "forces_setup_pH.py"
+        forces_setup_path = __location__ /"helperFunctions"/ "generate_charge.py"
 
         shutil.copy(mm_run_path, destination_folder)
         shutil.copy(mm_analysis_path, destination_folder)
