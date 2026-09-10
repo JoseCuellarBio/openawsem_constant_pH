@@ -344,6 +344,7 @@ class AWSEMSimulationProject:
             __location__ / "scripts" / "forces_setup.py",
             __location__ / "scripts" / "forces_setup_pH.py",
             __location__ / "scripts" / "Montecarlo_2.py",
+            __location__ / "functionTerms" / "pH_debyeHuckelTerms.py",
             __location__ / "helperFunctions" / "generate_charge.py",
         ]
 
@@ -477,6 +478,7 @@ class TestAWSEMSimulationProject(unittest.TestCase):
             "forces_setup.py",
             "forces_setup_pH.py",
             "Montecarlo_2.py",
+            "pH_debyeHuckelTerms.py",
             "generate_charge.py",
         ]
         for file in copied_files:

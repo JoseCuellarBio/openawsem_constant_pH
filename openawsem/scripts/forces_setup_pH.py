@@ -1,6 +1,11 @@
 from openawsem.functionTerms import *
 from openawsem.helperFunctions.myFunctions import *
-from openawsem.functionTerms.pH_debyeHuckelTerms import debye_huckel_term_constant_ph
+try:
+    # Prefer the project-local copy so users can customize it per simulation.
+    from pH_debyeHuckelTerms import debye_huckel_term_constant_ph
+except ModuleNotFoundError:
+    # Fall back to the installed package when this template is imported directly.
+    from openawsem.functionTerms.pH_debyeHuckelTerms import debye_huckel_term_constant_ph
 try:
     from openmm.unit import angstrom
     from openmm.unit import kilocalorie_per_mole
