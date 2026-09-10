@@ -29,8 +29,9 @@ def debye_huckel_term_constant_ph(oa, k_dh=5*4.184, forceGroup=30, screening_len
     dh.addPerParticleParameter("res")
     dh.addPerParticleParameter("isChainEdge")
 
-    if oa.periodic:
+    if oa.periodic_box:
         dh.setNonbondedMethod(CustomNonbondedForce.CutoffPeriodic)
+        print("\ndebye_huckel_term_constant_ph is periodic")
     else:
         dh.setNonbondedMethod(CustomNonbondedForce.CutoffNonPeriodic)
 

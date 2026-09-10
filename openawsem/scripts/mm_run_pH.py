@@ -111,7 +111,15 @@ def run(args):
     spec.loader.exec_module(forces)
 
 
-    oa = OpenMMAWSEMSystem(input_pdb_filename, k_awsem=1.0, chains=chain, xml_filename=openawsem.xml, seqFromPdb=seq, includeLigands=args.includeLigands)  # k_awsem is an overall scaling factor that will affect the relevant temperature scales
+    oa = OpenMMAWSEMSystem(
+        input_pdb_filename,
+        k_awsem=1.0,
+        chains=chain,
+        xml_filename=openawsem.xml,
+        seqFromPdb=seq,
+        includeLigands=args.includeLigands,
+        periodic_box=args.periodic_box,
+    )  # k_awsem is an overall scaling factor that will affect the relevant temperature scales
     myForces = forces.set_up_forces(oa, submode=args.subMode, contactParameterLocation=parametersLocation)
     # print(forces)
     # oa.addForces(myForces)
@@ -275,10 +283,12 @@ def run(args):
         analysis_fasta = ""
     else:
         analysis_fasta = f"--fasta {args.fasta}"
+    additional_options = []
     if args.includeLigands:
-        additional_cmd = "--includeLigands"
-    else:
-        additional_cmd = ""
+        additional_options.append("--includeLigands")
+    if args.periodic_box:
+        additional_options.extend(["--periodic_box", *map(str, args.periodic_box)])
+    additional_cmd = " ".join(additional_options)
     os.system(f"{sys.executable} mm_analyze.py {args.protein} -t {os.path.join(toPath, 'movie.dcd')} --subMode {args.subMode} -f {args.forces} {analysis_fasta} {additional_cmd} -c {chain}")
 
 def main():
@@ -310,6 +320,13 @@ def main():
     parser.add_argument("--fasta", type=str, default="crystal_structure.fasta")
     parser.add_argument("--timeStep", type=float, default=2)
     parser.add_argument("--includeLigands", action="store_true", default=False)
+    parser.add_argument(
+        "--periodic_box",
+        type=float,
+        nargs=3,
+        metavar=("X", "Y", "Z"),
+        help="Enable periodic boundary conditions with box dimensions in nanometers",
+    )
     parser.add_argument("--interruptFrequency", type=int, default=1000,
                         help="Frequency of interruptions during simulation")
     parser.add_argument("--pH", type=float, default=7.0,
