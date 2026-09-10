@@ -115,6 +115,7 @@ test
 _local
 scratch
 jupyter
+stride/
 
 # =========================
 # Project Data and Artifacts
