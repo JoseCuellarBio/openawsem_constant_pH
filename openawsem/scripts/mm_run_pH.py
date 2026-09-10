@@ -303,7 +303,7 @@ def main():
                             0: constant temperature,\
                             1: temperature annealing")
     parser.add_argument("--subMode", type=int, default=-1)
-    parser.add_argument("-f", "--forces", default="forces_setup.py")
+    parser.add_argument("-f", "--forces", default="forces_setup_pH.py")
     parser.add_argument("--parameters", default=None)
     parser.add_argument("-r", "--reportFrequency", type=int, default=-1, help="default value step/400")
     parser.add_argument("--fromOpenMMPDB", action="store_true", default=False)

@@ -337,16 +337,18 @@ class AWSEMSimulationProject:
         Copy required scripts and files to the current working directory.
         """
         logging.info(f"Copying scripts to {destination_folder}")
-        mm_run_path = __location__ /"scripts"/ "mm_run.py"
-        mm_run_path = __location__ /"scripts"/ "mm_run_pH.py"
-        mm_analysis_path = __location__ /"scripts"/ "mm_analyze.py"
-        forces_setup_path = __location__ /"scripts"/ "forces_setup.py"
-        forces_setup_path = __location__ /"scripts"/ "forces_setup_pH.py"
-        forces_setup_path = __location__ /"helperFunctions"/ "generate_charge.py"
+        files_to_copy = [
+            __location__ / "scripts" / "mm_run.py",
+            __location__ / "scripts" / "mm_run_pH.py",
+            __location__ / "scripts" / "mm_analyze.py",
+            __location__ / "scripts" / "forces_setup.py",
+            __location__ / "scripts" / "forces_setup_pH.py",
+            __location__ / "scripts" / "Montecarlo_2.py",
+            __location__ / "helperFunctions" / "generate_charge.py",
+        ]
 
-        shutil.copy(mm_run_path, destination_folder)
-        shutil.copy(mm_analysis_path, destination_folder)
-        shutil.copy(forces_setup_path, destination_folder)
+        for source_path in files_to_copy:
+            shutil.copy(source_path, destination_folder)
 
 
     def run(self):
@@ -412,7 +414,7 @@ class AWSEMSimulationProject:
                 self.copy_parameters()
 
                 logging.info(f"{project_folder} project folder created")
-                logging.warning("Please modify the forces_setup.py if we want to change what energy terms to be used.")
+                logging.warning("Modify forces_setup.py or forces_setup_pH.py to change the energy terms used.")
 
 import unittest
 import tempfile
@@ -468,7 +470,15 @@ class TestAWSEMSimulationProject(unittest.TestCase):
 
     def test_copy_scripts(self):
         self.project.copy_scripts(destination_folder=self.temp_dir)
-        copied_files = ["mm_run.py", "mm_analysis.py", "forces_setup.py"]
+        copied_files = [
+            "mm_run.py",
+            "mm_run_pH.py",
+            "mm_analyze.py",
+            "forces_setup.py",
+            "forces_setup_pH.py",
+            "Montecarlo_2.py",
+            "generate_charge.py",
+        ]
         for file in copied_files:
             logging.info(self.project.base_folder/file)
             self.assertTrue((self.temp_dir/file).exists())

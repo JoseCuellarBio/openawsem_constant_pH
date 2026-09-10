@@ -1,6 +1,6 @@
 from openawsem.functionTerms import *
 from openawsem.helperFunctions.myFunctions import *
-from pH_debyeHuckelTerms import debye_huckel_term_constant_ph
+from openawsem.functionTerms.pH_debyeHuckelTerms import debye_huckel_term_constant_ph
 try:
     from openmm.unit import angstrom
     from openmm.unit import kilocalorie_per_mole
