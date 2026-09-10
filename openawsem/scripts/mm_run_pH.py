@@ -171,7 +171,12 @@ def run(args):
 
 ### Change ###
 
-    last_force = myForces[-1]
+    try:
+        debye_force = next(force for force in myForces if force.getForceGroup() == 30)
+    except StopIteration as exc:
+        raise RuntimeError(
+            "The constant-pH simulation requires a Debye-Huckel force in force group 30"
+        ) from exc
 
     if args.simulation_mode == 0:
         
@@ -185,16 +190,22 @@ def run(args):
         seq_oa = oa.seq
         print("seq_oa", seq_oa)
 
-        Hawsem_state = []
+        hawsem_state_path = os.path.join(toPath, "Hawsem.state")
+        protonation_attempts_path = os.path.join(toPath, "protonation_attempts.dat")
 
-        # Clear or create the state file.
-        with open('Hawsem.state', 'w') as f:
-            pass
+        # Clear or create output files and write their column headers.
+        with open(hawsem_state_path, "w") as state_file:
+            state_file.write("step pH debye_energy_kcal charges\n")
+        with open(protonation_attempts_path, "w") as attempts_file:
+            attempts_file.write(
+                "attempt step residue accepted pH debye_energy_kcal\n"
+            )
 
         # Fixed pH for the whole simulation.
         pH = args.pH
 
         total_steps = 0
+        attempt_number = 0
 
         while total_steps < int(args.steps):
 
@@ -216,7 +227,7 @@ def run(args):
 
             # Select a residue for MC.
             residue_mc = prot.mc.choose_residue()
-            # print(residue_mc)
+            attempt_number += 1
 
             # Attempt a protonation-state change.
             charged_residues, new_parameters = prot.protonation_mc.attempt_charge_flip(charged_residues)
@@ -224,24 +235,45 @@ def run(args):
             prot.list_charged_residues = charged_residues
 
             # Update Debye-Huckel parameters if a change was accepted.
+            accepted = int(new_parameters is not None)
             if new_parameters is not None:
 
                 particle_index, new_charge = new_parameters
 
-                last_force.setParticleParameters(
+                particle_parameters = list(
+                    debye_force.getParticleParameters(particle_index)
+                )
+                particle_parameters[0] = new_charge
+                debye_force.setParticleParameters(
                     particle_index,
-                    [new_charge]
+                    particle_parameters,
                 )
 
-                last_force.updateParametersInContext(simulation.context)
+                debye_force.updateParametersInContext(simulation.context)
+
+            debye_state = simulation.context.getState(
+                getEnergy=True,
+                groups={30},
+            )
+            debye_energy_kcal = debye_state.getPotentialEnergy().value_in_unit(
+                kilocalories_per_mole
+            )
+
+            residue_value = -1 if residue_mc is None else residue_mc
+            with open(protonation_attempts_path, "a") as attempts_file:
+                attempts_file.write(
+                    f"{attempt_number} {total_steps} {residue_value} "
+                    f"{accepted} {pH} {debye_energy_kcal:.6f}\n"
+                )
 
             # Save charge state.
             if total_steps % reporter_frequency == 0:
-
-                Hawsem_state_line = json.dumps(charged_residues) + str(pH)
-
-                with open('Hawsem.state', 'a') as f:
-                    f.write(Hawsem_state_line + "\n")
+                charges_json = json.dumps(charged_residues, separators=(",", ":"))
+                with open(hawsem_state_path, "a") as state_file:
+                    state_file.write(
+                        f"{total_steps} {pH} {debye_energy_kcal:.6f} "
+                        f"{charges_json}\n"
+                    )
 
 ### Change ####
     elif args.simulation_mode == 1:
