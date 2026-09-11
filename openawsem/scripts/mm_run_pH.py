@@ -359,7 +359,7 @@ def main():
         metavar=("X", "Y", "Z"),
         help="Enable periodic boundary conditions with box dimensions in nanometers",
     )
-    parser.add_argument("--interruptFrequency", type=int, default=1000,
+    parser.add_argument("--interruptFrequency", type=int, default=100,
                         help="Frequency of interruptions during simulation")
     parser.add_argument("--pH", type=float, default=7.0,
                         help="pH value used in constant-pH simulation mode")

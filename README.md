@@ -174,7 +174,7 @@ Simulation of the amino terminal domain of Phage 434 repressor (1r69)
 
    - `--simulation_mode 0`: runs constant-temperature dynamics and activates protonation-state sampling. This option is required; mode `1` performs temperature annealing without constant-pH moves.
    - `--pH`: sets the fixed solution pH used by the Monte Carlo acceptance criterion (default: `7.0`).
-   - `--interruptFrequency`: sets the number of MD steps between protonation-state attempts (default: `1000`). Smaller values attempt moves more often and add more overhead.
+   - `--interruptFrequency`: sets the number of MD steps between protonation-state attempts (default: `100`). Smaller values attempt moves more often and add more overhead.
    - `--tempStart`: sets the MD temperature in constant-temperature mode.
    - `-f forces_setup_pH.py`: enables the updateable Debye-Huckel force required by the constant-pH driver.
 
