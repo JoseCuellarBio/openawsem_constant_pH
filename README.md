@@ -1,28 +1,43 @@
-# OpenAWSEM
-## An implementation of the AWSEM coarse-grained protein folding forcefield in OpenMM
+# OpenAWSEM constant pH
 
+## AWSEM coarse-grained protein simulations in OpenMM with constant-pH sampling
 
+This repository extends [OpenAWSEM](https://github.com/npschafer/openawsem), an implementation of the AWSEM (Associative memory, Water-mediated Structure, and Energy Model) coarse-grained protein force field for OpenMM, with constant-pH sampling.
 
-OpenAWSEM is an implementation of the AWSEM (Associative memory, Water-mediated Structure, and Energy Model) coarse-grained protein forcefield designed for use with the OpenMM simulation toolkit.
+The standard OpenAWSEM molecular-dynamics workflow is preserved. The constant-pH extension periodically interrupts the dynamics and attempts a Monte Carlo change in the protonation state of a titratable residue. When a move is accepted, its charge is updated in the Debye-Huckel force without rebuilding the OpenMM system.
+
+## How this fork differs from OpenAWSEM
+
+The constant-pH implementation adds:
+
+- `mm_run_pH.py`, which alternates blocks of molecular dynamics with protonation-state Monte Carlo attempts;
+- `Montecarlo_2.py`, which selects residues and evaluates the pH, electrostatic, and local polar-environment contributions used in the acceptance criterion;
+- `pH_debyeHuckelTerms.py`, which defines a Debye-Huckel force whose per-particle charges can be changed during a simulation;
+- `forces_setup_pH.py`, a force configuration that enables the constant-pH Debye-Huckel term in force group 30; and
+- `charge.txt`, generated from the input sequence, which defines the initial residue charges and the residues eligible for constant-pH moves.
+
+The remaining preparation, force-field, simulation, and analysis machinery comes from OpenAWSEM.
 
 ## Installation
 
 ### Conda
 
-To install OpenAWSEM using Conda, execute the following command:
+The Conda package installs standard OpenAWSEM, not the constant-pH extension:
 
 ```bash
 conda install -c conda-forge openawsem
 ```
+
+To use constant-pH sampling, install this repository from source as described below.
 
 ### Git
 
 This installation mode is recommended for users that want to contribute to the code and Wolynes lab members.
 
 ```bash
-#Clone the awsem repository
-git clone https://github.com/npschafer/openawsem.git
-cd openawsem
+# Clone the constant-pH repository
+git clone https://github.com/JoseCuellarBio/openawsem_constant_pH.git
+cd openawsem_constant_pH
 
 # Create a new conda environment
 conda create -n openawsem -c conda-forge --file requirements.txt
@@ -133,21 +148,66 @@ Simulation of the amino terminal domain of Phage 434 repressor (1r69)
         templateTerms.fragment_memory_term(oa, frag_file_list_file="./frags.mem", npy_frag_table="./frags.npy", UseSavedFragTable=False),
       #  templateTerms.fragment_memory_term(oa, frag_file_list_file="./single_frags.mem", npy_frag_table="./single_frags.npy", UseSavedFragTable=False),
    ```
-3. **Run the Simulation:**
+4. **Run a standard OpenAWSEM simulation:**
    Execute the simulation using the `awsem_run` command, specifying the platform, number of steps, and start and end temperatures for the annealing simulation.
    As an example we are running 1e5 steps, but it is common to run from 5 to 30 million steps in a single run.
    
    ```bash
    awsem_run 1r69 --platform CPU --steps 1e5 --tempStart 800 --tempEnd 200 -f forces_setup.py
    ```
+5. **Run a constant-pH simulation:**
 
-4. **Compute Energy and Q:**
+   `awsem_create` also copies the constant-pH scripts and generates `charge.txt` in the simulation directory. Run the local constant-pH driver with the constant-pH force setup:
+
+   ```bash
+   ./mm_run_pH.py 1r69 \
+       --platform CPU \
+       --steps 1e5 \
+       --tempStart 300 \
+       --simulation_mode 0 \
+       --pH 7.0 \
+       --interruptFrequency 100 \
+       -f forces_setup_pH.py
+   ```
+
+   The relevant options are:
+
+   - `--simulation_mode 0`: runs constant-temperature dynamics and activates protonation-state sampling. This option is required; mode `1` performs temperature annealing without constant-pH moves.
+   - `--pH`: sets the fixed solution pH used by the Monte Carlo acceptance criterion (default: `7.0`).
+   - `--interruptFrequency`: sets the number of MD steps between protonation-state attempts (default: `1000`). Smaller values attempt moves more often and add more overhead.
+   - `--tempStart`: sets the MD temperature in constant-temperature mode.
+   - `-f forces_setup_pH.py`: enables the updateable Debye-Huckel force required by the constant-pH driver.
+
+   At each interruption, the driver chooses one eligible residue, proposes a change between its charged and neutral states, and accepts or rejects it using a Metropolis criterion. The energy change combines the imposed-pH term, screened electrostatics, and a local polar/nonpolar environment term. Accepted charges are immediately propagated to the OpenMM context.
+
+   Two additional files are written:
+
+   - `protonation_attempts.dat`: one row per attempted move, including the residue index, acceptance flag, pH, and Debye-Huckel energy;
+   - `Hawsem.state`: charge-state snapshots recorded when an interruption coincides with the trajectory reporting interval.
+
+### Configuring titratable residues
+
+`charge.txt` contains zero-based residue indices and initial charges:
+
+```text
+0 0.0
+1 1.0
+2 -1.0
+```
+
+The file is generated automatically from the FASTA sequence. In the current workflow, only entries with a nonzero initial charge are placed in the Monte Carlo candidate list. The generated defaults therefore sample Arg and Lys from `+1` to `0`, and Asp and Glu from `-1` to `0`. Although the Monte Carlo module contains parameters for additional residue types, neutral entries are not selected by the current driver. Review `charge.txt` before starting a production run; its residue numbering must match the OpenAWSEM system.
+
+The constant-pH force must remain in force group 30 because `mm_run_pH.py` uses that group to locate the force, update its particle charges, and report its energy.
+
+> **Current model assumptions:** protonation moves use residue-specific intrinsic pKa values and an internal Monte Carlo temperature of 300 K. That acceptance temperature is currently independent of `--tempStart`. Protonation is represented by changing coarse-grained charges; explicit protons are not added to the structure.
+
+6. **Compute Energy and Q:**
    Analyze the simulation results and redirect the output to `info.dat`.
    ```bash
    awsem_analyze 1r69 > info.dat
    ```
 
-5. **Run Local Scripts (Optional):**
+7. **Run Local Scripts (Optional):**
    The scripts are copied to the project folder and can be modified as needed. To run the local scripts, use the following commands:
    ```bash
    ./mm_run.py 1r69 --platform CPU --steps 1e5 --tempStart 800 --tempEnd 200 -f forces_setup.py
