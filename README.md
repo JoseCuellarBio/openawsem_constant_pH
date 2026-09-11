@@ -14,7 +14,7 @@ The constant-pH implementation adds:
 - `Montecarlo_2.py`, which selects residues and evaluates the pH, electrostatic, and local polar-environment contributions used in the acceptance criterion;
 - `pH_debyeHuckelTerms.py`, which defines a Debye-Huckel force whose per-particle charges can be changed during a simulation;
 - `forces_setup_pH.py`, a force configuration that enables the constant-pH Debye-Huckel term in force group 30; and
-- `charge.txt`, generated from the input sequence, which defines the initial residue charges and the residues eligible for constant-pH moves.
+- `charge_pH.txt`, generated from the input sequence, which defines the initial residue charges and the residues eligible for constant-pH moves.
 
 The remaining preparation, force-field, simulation, and analysis machinery comes from OpenAWSEM.
 
@@ -157,7 +157,7 @@ Simulation of the amino terminal domain of Phage 434 repressor (1r69)
    ```
 5. **Run a constant-pH simulation:**
 
-   `awsem_create` also copies the constant-pH scripts and generates `charge.txt` in the simulation directory. Run the local constant-pH driver with the constant-pH force setup:
+   `awsem_create` also copies the constant-pH scripts and automatically generates `charge_pH.txt` in the simulation directory. Run the local constant-pH driver with the constant-pH force setup:
 
    ```bash
    ./mm_run_pH.py 1r69 \
@@ -187,7 +187,7 @@ Simulation of the amino terminal domain of Phage 434 repressor (1r69)
 
 ### Configuring titratable residues
 
-`charge.txt` contains zero-based residue indices and initial charges:
+`charge_pH.txt` contains zero-based residue indices and initial charges:
 
 ```text
 0 0.0
@@ -195,7 +195,9 @@ Simulation of the amino terminal domain of Phage 434 repressor (1r69)
 2 -1.0
 ```
 
-The file is generated automatically from the FASTA sequence. In the current workflow, only entries with a nonzero initial charge are placed in the Monte Carlo candidate list. The generated defaults therefore sample Arg and Lys from `+1` to `0`, and Asp and Glu from `-1` to `0`. Although the Monte Carlo module contains parameters for additional residue types, neutral entries are not selected by the current driver. Review `charge.txt` before starting a production run; its residue numbering must match the OpenAWSEM system.
+The file is generated automatically from the FASTA sequence by `openawsem/helperFunctions/generate_charge.py`; users do not need to create it manually. Acidic residues (Asp, Glu, Cys, and Tyr) start at `-1`, basic residues (Arg, His, and Lys) start at `+1`, and all other residues start at `0`. Only entries with a nonzero initial charge are placed in the Monte Carlo candidate list. Review `charge_pH.txt` before starting a production run if you need to customize the initial state; its zero-based residue numbering must match the OpenAWSEM system.
+
+The standard `charge.txt` is still generated and used by the regular OpenAWSEM force setup. Keeping a separate `charge_pH.txt` prevents the constant-pH charge definitions from changing standard simulations.
 
 The constant-pH force must remain in force group 30 because `mm_run_pH.py` uses that group to locate the force, update its particle charges, and report its energy.
 

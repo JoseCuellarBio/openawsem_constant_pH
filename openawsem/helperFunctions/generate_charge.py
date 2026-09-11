@@ -27,7 +27,7 @@ def read_fasta_concat(fasta_file):
     return sequence
 
 
-def generate_charge_file(fasta_file, output_file="charges.txt"):
+def generate_charge_file(fasta_file, output_file="charge_pH.txt"):
 
     seq = read_fasta_concat(fasta_file)
 
@@ -59,7 +59,7 @@ def main():
     parser.add_argument(
         "-o",
         "--output",
-        default="charges.txt",
+        default="charge_pH.txt",
         help="Output charge file",
     )
     args = parser.parse_args()

@@ -319,6 +319,9 @@ class AWSEMSimulationProject:
     def generate_charges(self):
         logging.info("Generating charges")
         openawsem.helperFunctions.generate_charge_array(Path(f"{self.name}.fasta"),Path('charge.txt'))
+        openawsem.helperFunctions.generate_charge_file(
+            Path(f"{self.name}.fasta"), Path("charge_pH.txt")
+        )
 
     def copy_parameters(self, destination_folder='.'):
         # Copy the files using shutil.copy()

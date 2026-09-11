@@ -185,7 +185,7 @@ def run(args):
         # Get target atom indices and metadata.
         indices, target_atoms_info = get_target_atom_indices_and_info(oa)  
          
-        charged_residues = process_charged_residue_file('charge.txt')
+        charged_residues = process_charged_residue_file("charge_pH.txt")
 
         seq_oa = oa.seq
         print("seq_oa", seq_oa)
